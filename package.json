@@ -4,7 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public",
+    "start": "sirv public --single",
     "validate": "svelte-check"
   },
   "devDependencies": {
@@ -21,6 +21,7 @@
     "core-js": "^3.8.1",
     "postcss": "^8.2.1",
     "postcss-nesting": "^7.0.1",
+    "prettier-plugin-svelte": "^1.4.2",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -29,6 +30,7 @@
     "svelte": "^3.0.0",
     "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.0",
+    "svelte-routing": "^1.4.2",
     "tailwindcss": "^1.9.6",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3"
