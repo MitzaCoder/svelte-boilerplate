@@ -33,12 +33,24 @@ function serve() {
 
 export default {
 	input: 'src/main.ts',
-	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
-		file: 'public/build/bundle.js'
-	},
+	output: [
+		{
+			sourcemap: true,
+			format: 'esm',
+			name: 'app',
+			dir: 'public/build'
+		},
+		{
+			sourcemap: true,
+			format: 'iife',
+			name: 'app',
+			file: 'public/build/main.iife.js',
+
+			// this is important, otherwise we get an error:
+      // can't use IIFE format with dynamic imports!
+			inlineDynamicImports: true,
+		}
+	],
 	plugins: [
 		svelte({
 			preprocess: sveltePreprocess({
