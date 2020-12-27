@@ -1,97 +1,39 @@
-import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
-import sveltePreprocess from 'svelte-preprocess';
-import typescript from '@rollup/plugin-typescript';
 import babel from '@rollup/plugin-babel';
-import css from 'rollup-plugin-css-only';
+import commonPlugins from './rollup-common-plugins'
 
-const production = !process.env.ROLLUP_WATCH;
-
-function serve() {
-	let server;
-
-	function toExit() {
-		if (server) server.kill(0);
-	}
-
-	return {
-		writeBundle() {
-			if (server) return;
-			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-				stdio: ['ignore', 'inherit', 'inherit'],
-				shell: true
-			});
-
-			process.on('SIGTERM', toExit);
-			process.on('exit', toExit);
-		}
-	};
-}
-
-export default {
+export default [
+{
 	input: 'src/main.ts',
-	output: [
-		{
-			sourcemap: true,
-			format: 'esm',
-			name: 'app',
-			dir: 'public/build'
-		},
-		{
-			sourcemap: true,
-			format: 'iife',
-			name: 'app',
-			file: 'public/build/main.iife.js',
+	output: {
+		sourcemap: true,
+		format: 'esm',
+		name: 'app',
+		dir: 'public/build'
+	},
+	plugins: [...commonPlugins],
+	watch: {
+		clearScreen: false
+	}
+},
+{
+	input: 'src/main.ts',
+	output: {
+		sourcemap: true,
+		format: 'iife',
+		name: 'app',
+		file: 'public/build/main.iife.js',
 
-			// this is important, otherwise we get an error:
-      // can't use IIFE format with dynamic imports!
-			inlineDynamicImports: true,
-		}
-	],
+		// this is important, otherwise we get an error:
+		// can't use IIFE format with dynamic imports!
+		inlineDynamicImports: true,
+	},
 	plugins: [
-		svelte({
-			preprocess: sveltePreprocess({
-        sourceMap: !production,
-        postcss: {
-          plugins: [
-            require('tailwindcss'),
-            require('autoprefixer'),
-            require('postcss-nesting'),
-          ],
-        },
-      }),
-			compilerOptions: {
-				// enable run-time checks when not in production
-				dev: !production
-			}
-		}),
-		// we'll extract any component CSS out into
-		// a separate file - better for performance
-		css({ output: 'bundle.css' }),
+		...commonPlugins,
 
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve({
-			browser: true,
-			dedupe: ['svelte']
-		}),
-		commonjs(),
-		typescript({
-			sourceMap: !production,
-			inlineSources: !production
-		}),
-
-		// for IE 11 compatibility
 		// for IE 11 compatibility
     babel({
       extensions: ['.js', '.mjs', '.html', '.svelte'],
-      babelHelpers: 'runtime',
+      babelHelpers: 'bundled',
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
       presets: [
         [
@@ -102,31 +44,10 @@ export default {
             corejs: 3,
           }
         ]
-      ],
-      plugins: [
-        '@babel/plugin-syntax-dynamic-import',
-        [
-          '@babel/plugin-transform-runtime',
-          {
-            useESModules: true
-          }
-        ]
       ]
     }),
-
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
-
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
-
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser()
 	],
 	watch: {
 		clearScreen: false
 	}
-};
+}];
